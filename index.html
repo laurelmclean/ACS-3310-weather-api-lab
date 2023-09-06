@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Ms Merriweather</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<div class="container">
+  <h1 id="temp">
+    <!-- Temp -->
+  </h1>
+  <p id="humidity">
+    <!-- Humidity -->
+  </p>
+  <p id="desc">
+    <!-- Description -->
+  </p>
+  <form id="form">
+    <label for="zip">Enter Zip Code:</label>
+    <input id="zip" type="number" placeholder="Zip code" title="Please Enter a valid Zip Code"
+      pattern="^\d{5}(?:[-\s]\d{4})?$">
+    <br>
+    <label for="city">OR enter location:</label>
+    <input id="city" type="text" placeholder="City">
+    <input id="state" type="text" placeholder="State">
+    <input id="country" type="text" placeholder="Country">
+    <br>
+    <label for="latitude">OR enter geolocation:</label>
+    <input id="latitude" type="text" placeholder="Latitude">
+    <input id="longitude" type="text" placeholder="Longitude">
+    <br>
+    <label for="unitSelect">Select units:</label>
+    <select id="unitSelect">
+      <option value="metric">Metric (°C, m/s)</option>
+      <option value="imperial">Imperial (°F, mph)</option>
+    </select>
+    <br>
+    <button type="submit">Search</button>
+  </form>
+</div>
+  <script type="module">
+    import { getWeatherByZip, getWeatherByCity, getWeatherByGeo } from './index.js';
+    // ------------------------------------------------------
+    // Developer Code
+
+    // Get Element references
+    const tempEl = document.getElementById('temp');
+    const humidityEl = document.getElementById('humidity');
+    const descEl = document.getElementById('desc');
+    const formEl = document.getElementById('form');
+    const zipInput = document.getElementById('zip');
+    const cityInput = document.getElementById('city');
+    const stateInput = document.getElementById('state');
+    const countryInput = document.getElementById('country');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const unitSelect = document.getElementById('unitSelect');
+
+    // Define the callback function to handle weather data
+    function onSuccess(weatherData) {
+      tempEl.innerHTML = weatherData.temp;
+      humidityEl.innerHTML = 'Humidity: ' + weatherData.humidity;
+      descEl.innerHTML = weatherData.description;
+    }
+
+    // Define the callback function to handle errors
+    function onError(error) {
+      console.log(error);
+    }
+
+    // Define event listener
+    formEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Check which input field is not empty and use the corresponding function
+      const zip = zipInput.value;
+      const city = cityInput.value;
+      const state = stateInput.value;
+      const country = countryInput.value;
+      const latitude = latitudeInput.value;
+      const longitude = longitudeInput.value;
+      const selectedUnit = unitSelect.value;
+
+      const apiKey = '467355df4c808dd6134a3b64e9ace282';
+
+      if (zip) {
+        getWeatherByZip(apiKey, zip, selectedUnit)
+          .then(onSuccess)
+          .catch(onError);
+      } else if (city || state || country) {
+        getWeatherByCity(apiKey, city, state, country, selectedUnit)
+          .then(onSuccess)
+          .catch(onError);
+      } else if (latitude && longitude) {
+        getWeatherByGeo(apiKey, latitude, longitude, selectedUnit)
+          .then(onSuccess)
+          .catch(onError);
+      }
+    });
+  </script>
+</body>
+
+</html>
